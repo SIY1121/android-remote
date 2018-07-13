@@ -15,7 +15,8 @@ fun GL2.UGenTexture(width: Int, height: Int): Int {
     this.glTextureParameteriEXT(id, GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_CLAMP_TO_EDGE)
     this.glTextureParameteriEXT(id, GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_EDGE)
 
-    this.glBindTexture(GL2.GL_TEXTURE_2D, 0)
 
+    this.glBindTexture(GL2.GL_TEXTURE_2D, 0)
+    println("genTex $width x $height")
     return id
 }
