@@ -54,3 +54,7 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.6'
+}

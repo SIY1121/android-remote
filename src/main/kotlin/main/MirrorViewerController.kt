@@ -2,24 +2,17 @@ package main
 
 import com.jogamp.opengl.GL2
 import com.jogamp.opengl.awt.GLJPanel
-import javafx.application.Platform
 import javafx.embed.swing.SwingNode
-import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
-import javafx.scene.control.Alert
-import javafx.scene.control.ButtonType
-import javafx.scene.web.WebView
 import kotlinx.coroutines.experimental.launch
 import org.bytedeco.javacv.FFmpegFrameGrabber
 import java.net.Socket
 import java.net.URL
 import java.nio.ByteBuffer
 import java.util.*
-import javax.script.ScriptEngine
-import javax.script.ScriptEngineManager
 
-class Controller : Initializable {
+class MirrorViewerController :Initializable {
     @FXML
     lateinit var swingNode: SwingNode
 
@@ -31,26 +24,14 @@ class Controller : Initializable {
 
     lateinit var grabber: FFmpegFrameGrabber
 
-    @FXML
-    lateinit var editor: WebView
-
-    lateinit var engine: ScriptEngine
-
     override fun initialize(location: URL?, resources: ResourceBundle?) {
-
-        System.setProperty("nashorn.args", "--language=es6")
-        engine = ScriptEngineManager().getEngineByName("Nashorn")
-
-        editor.engine.load(ClassLoader.getSystemResource("editor/editor.html").toString())
-
-
-
         println("finding devices")
         exec("adb", "forward", "tcp:8080", "tcp:8080")
         socket = Socket("127.0.0.1", 8080)
         println("connected")
 
         grabber = FFmpegFrameGrabber(socket.getInputStream())
+        grabber.frameRate = 60.0
         grabber.start()
         println("${grabber.imageWidth}x${grabber.imageHeight}")
 
@@ -60,8 +41,6 @@ class Controller : Initializable {
         glJPanel.addGLEventListener(listener)
         swingNode.content = glJPanel
 
-
-        engine.put("app", JavascriptInterface(this))
 
         launch {
             while (true) {
@@ -84,21 +63,4 @@ class Controller : Initializable {
         }
     }
 
-    fun onRun(actionEvent: ActionEvent) {
-        val script = editor.engine.executeScript("editor.getValue()").toString()
-
-        launch {
-            try {
-                engine.eval(script)
-            } catch (ex: Exception) {
-                Platform.runLater {
-                    Alert(Alert.AlertType.ERROR, ex.message, ButtonType.CLOSE).show()
-                }
-            }
-        }
-    }
-
-    fun onTest(actionEvent: ActionEvent) {
-
-    }
 }
